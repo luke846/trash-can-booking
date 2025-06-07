@@ -2,132 +2,116 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Trash Can Cleaning Booking</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sparkle Trash Cleaning</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f0f8ff;
-      margin: 0;
-      padding: 0;
-    }
-    header {
-      background: #2196f3;
-      color: white;
-      padding: 1rem;
+      background-color: #f0f8ff;
+      padding: 20px;
       text-align: center;
     }
-    .container {
-      padding: 2rem;
-      max-width: 600px;
-      margin: auto;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    h1 {
+      color: #2c3e50;
     }
-    label {
-      display: block;
-      margin-top: 1rem;
+    form {
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 400px;
+      margin: 0 auto;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
-    input, select, textarea {
+    input, select, button {
       width: 100%;
-      padding: 0.5rem;
-      margin-top: 0.3rem;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
     }
     button {
-      margin-top: 1.5rem;
-      padding: 0.75rem;
-      width: 100%;
-      background: #4caf50;
+      background-color: #2ecc71;
       color: white;
+      font-weight: bold;
       border: none;
-      font-size: 1rem;
       cursor: pointer;
     }
     button:hover {
-      background: #45a049;
+      background-color: #27ae60;
     }
-    .note {
-      font-size: 0.9rem;
-      margin-top: 1rem;
-      color: #555;
+    #status {
+      margin-top: 20px;
+      color: #333;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Trash Can Cleaning Booking</h1>
-    <p>Cash Only — $20 One-Time | $15 Monthly | $5 Extra Can | $3 Monthly Extra Can</p>
-  </header>
 
-  <div class="container">
-    <form id="bookingForm">
-      <label for="name">Full Name</label>
-      <input type="text" id="name" name="name" required />
+  <h1>✨ Sparkle Trash Cleaning ✨</h1>
+  <p>Book a one-time or monthly trash can cleaning now!</p>
 
-      <label for="phone">Phone Number (for reminders)</label>
-      <input type="tel" id="phone" name="phone" required />
+  <form id="bookingForm">
+    <input type="text" name="name" placeholder="Full Name" required />
+    <input type="email" name="email" placeholder="Email Address" required />
+    <input type="tel" name="phone" placeholder="Phone Number" required />
 
-      <label for="email">Email Address</label>
-      <input type="email" id="email" name="email" required />
+    <label>Date:</label>
+    <input type="date" name="date" required />
 
-      <label for="address">Service Address</label>
-      <textarea id="address" name="address" required></textarea>
+    <label>Time:</label>
+    <input type="time" name="time" required />
 
-      <label for="date">Choose a Date</label>
-      <select id="date" name="date" required>
-        <!-- Dates will go here -->
-      </select>
+    <label>Plan:</label>
+    <select name="plan" required>
+      <option value="One-time - $20">One-time - $20</option>
+      <option value="Monthly - $15 per can">Monthly - $15 per can</option>
+    </select>
 
-      <label for="time">Choose a Time</label>
-      <select id="time" name="time" required>
-        <!-- Times will go here -->
-      </select>
+    <label>How many cans?</label>
+    <input type="number" name="cans" min="1" max="10" required />
 
-      <label for="plan">Select Plan</label>
-      <select id="plan" name="plan" required>
-        <option value="One-Time - $20">One-Time - $20</option>
-        <option value="Monthly - $15">Monthly - $15</option>
-      </select>
+    <button type="submit">Book Now</button>
+  </form>
 
-      <label for="extraCans">Extra Cans?</label>
-      <select id="extraCans" name="extraCans">
-        <option value="0">None</option>
-        <option value="1">1 Can - $5</option>
-        <option value="2">2 Cans - $10</option>
-      </select>
-
-      <p class="note">📢 Cancellations must be made 24 hours in advance.</p>
-      <button type="submit">Book Now</button>
-    </form>
-  </div>
+  <div id="status"></div>
 
   <script>
-    // Replace these with your own available options
-    const dates = ["June 10", "June 12", "June 14"];
-    const times = ["9:00 AM", "10:00 AM", "11:00 AM"];
-
-    const dateSelect = document.getElementById("date");
-    const timeSelect = document.getElementById("time");
-
-    dates.forEach(date => {
-      const opt = document.createElement("option");
-      opt.value = date;
-      opt.textContent = date;
-      dateSelect.appendChild(opt);
-    });
-
-    times.forEach(time => {
-      const opt = document.createElement("option");
-      opt.value = time;
-      opt.textContent = time;
-      timeSelect.appendChild(opt);
-    });
-
-    document.getElementById("bookingForm").addEventListener("submit", function (e) {
+    document.getElementById("bookingForm").addEventListener("submit", async function (e) {
       e.preventDefault();
-      alert("Booking received! You'll get a reminder by email or text.");
-      this.reset();
+
+      const form = e.target;
+      const data = {
+        name: form.name.value,
+        email: form.email.value,
+        phone: form.phone.value,
+        date: form.date.value,
+        time: form.time.value,
+        plan: form.plan.value,
+        cans: form.cans.value,
+      };
+
+      const status = document.getElementById("status");
+      status.textContent = "Sending...";
+
+      try {
+        const response = await fetch("/api/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          status.textContent = "Booking sent! Check your email.";
+          form.reset();
+        } else {
+          status.textContent = "Something went wrong. Try again!";
+        }
+      } catch (error) {
+        status.textContent = "Error sending form.";
+        console.error(error);
+      }
     });
   </script>
 </body>
