@@ -2,117 +2,145 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Sparkle Trash Cleaning</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f0f8ff;
+      background: #f0f9ff;
+      color: #222;
       padding: 20px;
-      text-align: center;
+      max-width: 600px;
+      margin: auto;
     }
+
     h1 {
-      color: #2c3e50;
+      text-align: center;
+      color: #0077cc;
     }
-    form {
-      background-color: #ffffff;
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 400px;
-      margin: 0 auto;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+    label {
+      display: block;
+      margin: 12px 0 4px;
     }
+
     input, select, button {
       width: 100%;
-      padding: 10px;
-      margin: 10px 0;
+      padding: 8px;
+      margin-bottom: 12px;
       border-radius: 5px;
       border: 1px solid #ccc;
     }
+
     button {
-      background-color: #2ecc71;
+      background-color: #0077cc;
       color: white;
       font-weight: bold;
-      border: none;
       cursor: pointer;
     }
-    button:hover {
-      background-color: #27ae60;
+
+    .total {
+      font-size: 1.2em;
+      font-weight: bold;
+      margin-top: 10px;
     }
-    #status {
-      margin-top: 20px;
-      color: #333;
+
+    .note {
+      font-size: 0.9em;
+      color: #444;
     }
   </style>
 </head>
 <body>
+  <h1>Sparkle Trash Cleaning</h1>
+  <form id="booking-form">
+    <label for="name">Name</label>
+    <input type="text" id="name" required>
 
-  <h1>✨ Sparkle Trash Cleaning ✨</h1>
-  <p>Book a one-time or monthly trash can cleaning now!</p>
+    <label for="phone">Phone Number</label>
+    <input type="tel" id="phone" required>
 
-  <form id="bookingForm">
-    <input type="text" name="name" placeholder="Full Name" required />
-    <input type="email" name="email" placeholder="Email Address" required />
-    <input type="tel" name="phone" placeholder="Phone Number" required />
+    <label for="email">Email</label>
+    <input type="email" id="email" required>
 
-    <label>Date:</label>
-    <input type="date" name="date" required />
+    <label for="date">Select Date</label>
+    <input type="date" id="date" required>
 
-    <label>Time:</label>
-    <input type="time" name="time" required />
+    <label for="time">Select Time</label>
+    <input type="time" id="time" required>
 
-    <label>Plan:</label>
-    <select name="plan" required>
-      <option value="One-time - $20">One-time - $20</option>
-      <option value="Monthly - $15 per can">Monthly - $15 per can</option>
+    <label for="plan">Choose a Plan</label>
+    <select id="plan" required>
+      <option value="one-time">One-Time ($20)</option>
+      <option value="monthly">Monthly ($15)</option>
     </select>
 
-    <label>How many cans?</label>
-    <input type="number" name="cans" min="1" max="10" required />
+    <label for="extraCans">How many extra cans?</label>
+    <select id="extraCans">
+      <option value="0">0</option>
+      <option value="1">1 ($5 or $3/month)</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+    </select>
+
+    <div class="total" id="total">Total: $20</div>
 
     <button type="submit">Book Now</button>
+    <p class="note">You will receive a confirmation by email and text. You can cancel up to 24 hours in advance. This is a cash-only service.</p>
   </form>
 
-  <div id="status"></div>
-
   <script>
-    document.getElementById("bookingForm").addEventListener("submit", async function (e) {
+    const form = document.getElementById("booking-form");
+    const plan = document.getElementById("plan");
+    const extraCans = document.getElementById("extraCans");
+    const totalDisplay = document.getElementById("total");
+
+    function updateTotal() {
+      const isMonthly = plan.value === "monthly";
+      const base = isMonthly ? 15 : 20;
+      const extras = parseInt(extraCans.value || 0);
+      const extraPrice = isMonthly ? 3 : 5;
+      const total = base + extras * extraPrice;
+      totalDisplay.textContent = `Total: $${total}`;
+    }
+
+    plan.addEventListener("change", updateTotal);
+    extraCans.addEventListener("change", updateTotal);
+
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      const form = e.target;
-      const data = {
+      const bookingData = {
         name: form.name.value,
-        email: form.email.value,
         phone: form.phone.value,
+        email: form.email.value,
         date: form.date.value,
         time: form.time.value,
         plan: form.plan.value,
-        cans: form.cans.value,
+        extraCans: form.extraCans.value,
       };
 
-      const status = document.getElementById("status");
-      status.textContent = "Sending...";
-
       try {
-        const response = await fetch("/api/send", {
+        const response = await fetch("/api/book", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
+          body: JSON.stringify(bookingData),
         });
 
         const result = await response.json();
-
         if (result.success) {
-          status.textContent = "Booking sent! Check your email.";
+          alert("Booking confirmed! A message has been sent.");
           form.reset();
+          updateTotal();
         } else {
-          status.textContent = "Something went wrong. Try again!";
+          alert("There was an error. Try again later.");
         }
-      } catch (error) {
-        status.textContent = "Error sending form.";
-        console.error(error);
+      } catch (err) {
+        alert("Error sending form.");
       }
     });
+
+    updateTotal();
   </script>
 </body>
 </html>
